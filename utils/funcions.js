@@ -1,6 +1,7 @@
 import { fileURLToPath } from "url";
 import path from "node:path";
 import fs from "node:fs";
+import dns from "node:dns";
 
 export function getIpAddressForEnvironment(environment) {
   const __filename = fileURLToPath(new URL(import.meta.url));
@@ -27,8 +28,10 @@ export function extractDomains(data) {
   const matches = [];
   let match;
   while ((match = regex.exec(data))) {
-    if (!isIpAddress(match[1])) {
-      matches.push(match[1]);
+    const potentialDomain = match[1];
+
+    if (!isIpAddress(potentialDomain) && potentialDomain.includes(".")) {
+      matches.push(potentialDomain);
     }
   }
   return matches;
@@ -37,6 +40,15 @@ export function extractDomains(data) {
 export function isValidDomain(domain) {
   const domainRegex = /^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
   return domainRegex.test(domain);
+}
+
+export async function resolveDns(domain) {
+  try {
+    const { address } = await dns.promises.lookup(domain);
+    return address;
+  } catch (error) {
+    throw new Error(`Erro ao resolver DNS para ${domain}: ${error.message}`);
+  }
 }
 
 function isIpAddress(input) {

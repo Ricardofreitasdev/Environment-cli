@@ -1,6 +1,6 @@
 {
   "environments": {
-    "development": "123.45.67.89",
+    "development": "127.0.0.1",
     "staging": "123.45.67.89",
     "production": "123.45.67.89"
   }

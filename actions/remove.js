@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import inquirer from "inquirer";
-import { extractDomains } from "../utils/funcions.js";
+import { extractDomains, resolveDns } from "../utils/funcions.js";
 
 async function removeDomain() {
   try {
@@ -26,8 +26,12 @@ async function removeDomain() {
     const updatedData = data.replace(regex, "\n");
 
     await fs.promises.writeFile("/etc/hosts", updatedData, "utf8");
-
     console.log(`${domainToRemove} foi removido com sucesso de /etc/hosts.`);
+
+    const address = await resolveDns(domainToRemove);
+    console.log(
+      `O domínio ${domainToRemove} foi resolvido para o endereço IP: ${address}`
+    );
   } catch (error) {
     console.error("Ocorreu um erro:", error);
   }

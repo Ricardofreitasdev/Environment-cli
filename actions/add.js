@@ -3,6 +3,7 @@ import inquirer from "inquirer";
 import {
   getIpAddressForEnvironment,
   isValidDomain,
+  resolveDns,
 } from "../utils/funcions.js";
 
 async function addDomain() {
@@ -37,17 +38,13 @@ async function addDomain() {
     }
 
     const entry = `\n${ip} ${domain}\n`;
+    await fs.promises.appendFile("/etc/hosts", entry);
 
-    fs.appendFile("/etc/hosts", entry, (err) => {
-      if (err) {
-        console.error("Erro ao inserir o domínio no arquivo /etc/hosts:", err);
-        return;
-      }
+    const address = await resolveDns(domain);
 
-      console.log(
-        `${domain} foi adicionado com sucesso em /etc/hosts apontando para ${environment} (${ip}).`
-      );
-    });
+    console.log(
+      `O domínio ${domain} foi resolvido para o endereço IP: ${address}`
+    );
   } catch (error) {
     console.error("Ocorreu um erro:", error);
   }
